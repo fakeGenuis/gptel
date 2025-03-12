@@ -953,9 +953,7 @@ Note: This will move the cursor."
                                      (gptel-prompt-prefix-string))
                                     "?"))
             (goto-char (match-end 0)))
-        (when (looking-back (concat (regexp-quote
-                                     (gptel-response-prefix-string))
-                                    "?")
+        (when (looking-back "\\(?:@.+$\\)?"
                             (point-min))
           (goto-char (match-beginning 0)))))))
 
@@ -987,7 +985,7 @@ If positions START and END are provided, insert that part of BUF first."
 
 (defun gptel-response-prefix-string ()
   "Prefix before LLM responses in `gptel-mode'."
-  (or (alist-get major-mode gptel-response-prefix-alist) ""))
+  (format "@%s\n" gptel-model))
 
 (defsubst gptel--trim-prefixes (s)
   "Remove prompt/response prefixes from string S.
@@ -998,9 +996,7 @@ Return nil if string collapses to empty string."
                              (regexp-quote
                               (gptel-prompt-prefix-string)))))
          (trimmed (string-trim-right
-                   trimmed (format "[\t\r\n ]*\\(?:%s\\)?[\t\r\n ]*"
-                                   (regexp-quote
-                                    (gptel-response-prefix-string))))))
+                   trimmed "[\t\r\n ]*\\(?:@.+$\\)?[\t\r\n ]*")))
     (unless (string-empty-p trimmed)
       trimmed)))
 
